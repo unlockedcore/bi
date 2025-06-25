@@ -1,0 +1,65 @@
+services:
+  # PostgreSQL база данных
+  postgres:
+    image: postgres:15
+    container_name: bi_postgres
+    environment:
+      POSTGRES_DB: bi_database
+      POSTGRES_USER: bi_user
+      POSTGRES_PASSWORD: bi_password
+    ports:
+      - "5432:5432"
+    volumes:
+      # Монтируем скрипт инициализации
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # Постоянное хранение данных
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bi_network
+    restart: unless-stopped
+
+  # Веб-интерфейс для визуализации данных
+  web-dashboard:
+    image: nginx:alpine
+    container_name: bi_dashboard
+    ports:
+      - "3000:80"
+    volumes:
+      # Монтируем наш веб-интерфейс
+      - ./web:/usr/share/nginx/html
+    networks:
+      - bi_network
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  # API сервер для подключения к базе данных
+  api-server:
+    image: node:18-alpine
+    container_name: bi_api
+    working_dir: /app
+    command: sh -c "npm install && node server.js"
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./api:/app
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=bi_database
+      - DB_USER=bi_user
+      - DB_PASSWORD=bi_password
+    networks:
+      - bi_network
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+# Создаем именованные тома для постоянного хранения данных
+volumes:
+  postgres_data:
+
+# Создаем изолированную сеть для наших сервисов
+networks:
+  bi_network:
+    driver: bridge

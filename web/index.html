@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BI Дашборд - Аналитика продаж</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Заголовок -->
+      <header class="header">
+        <h1>BI Дашборд</h1>
+        <p>Аналитика продаж и бизнес-метрики</p>
+        <div class="last-updated">
+          Последнее обновление: <span id="lastUpdated">Загрузка...</span>
+        </div>
+      </header>
+
+      <!-- Фильтры -->
+      <section class="filters-section">
+        <div class="filters-container">
+          <h2>Фильтры</h2>
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label for="dateFrom">Дата с:</label>
+              <input type="date" id="dateFrom" class="filter-input" />
+            </div>
+            <div class="filter-group">
+              <label for="dateTo">Дата по:</label>
+              <input type="date" id="dateTo" class="filter-input" />
+            </div>
+            <div class="filter-group">
+              <label for="categoryFilter">Категория:</label>
+              <select id="categoryFilter" class="filter-input">
+                <option value="">Все категории</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="regionFilter">Регион:</label>
+              <select id="regionFilter" class="filter-input">
+                <option value="">Все регионы</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>&nbsp;</label>
+              <button class="filter-btn apply-btn" id="applyFilters">
+                Применить
+              </button>
+            </div>
+            <div class="filter-group">
+              <label>&nbsp;</label>
+              <button class="filter-btn reset-btn" id="resetFilters">
+                Сбросить
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Общая статистика -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-content">
+            <h3>Общий доход</h3>
+            <div class="stat-value" id="totalRevenue">Загрузка...</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-content">
+            <h3>Всего продаж</h3>
+            <div class="stat-value" id="totalSales">Загрузка...</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-content">
+            <h3>Товаров</h3>
+            <div class="stat-value" id="totalProducts">Загрузка...</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-content">
+            <h3>Регионов</h3>
+            <div class="stat-value" id="totalRegions">Загрузка...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Графики -->
+      <section class="charts-grid">
+        <!-- Доходы по категориям -->
+        <div class="chart-container">
+          <h2>Доходы по категориям</h2>
+          <canvas id="categoryChart"></canvas>
+        </div>
+
+        <!-- Продажи по регионам -->
+        <div class="chart-container">
+          <h2>Продажи по регионам</h2>
+          <canvas id="regionChart"></canvas>
+        </div>
+
+        <!-- Эффективность площадок -->
+        <div class="chart-container">
+          <h2>Эффективность площадок</h2>
+          <canvas id="platformChart"></canvas>
+        </div>
+
+        <!-- Месячные тренды -->
+        <div class="chart-container">
+          <h2>Месячные тренды</h2>
+          <canvas id="trendsChart"></canvas>
+        </div>
+      </section>
+
+      <!-- Топ товары -->
+      <section class="top-products">
+        <h2>Топ-10 товаров</h2>
+        <div class="products-table">
+          <table id="topProductsTable">
+            <thead>
+              <tr>
+                <th>Товар</th>
+                <th>Категория</th>
+                <th>Продаж</th>
+                <th>Доход</th>
+                <th>Средняя цена</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="5">Загрузка данных...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Загрузка Excel файлов -->
+      <section class="file-upload">
+        <div class="section-header">
+          <h2>Excel</h2>
+        </div>
+        <div class="upload-container">
+          <div class="upload-area" id="uploadArea">
+            <div class="upload-icon"></div>
+            <p>Загрузите Excel файл</p>
+            <p class="upload-hint">
+              Поддерживаются форматы: .xlsx, .xls (макс. 10MB)
+            </p>
+            <input
+              type="file"
+              id="fileInput"
+              accept=".xlsx,.xls"
+              style="display: none"
+            />
+            <div class="upload-btn-container">
+              <button class="upload-btn" id="uploadBtn">Выбрать файл</button>
+            </div>
+          </div>
+          <div
+            class="upload-progress"
+            id="uploadProgress"
+            style="display: none"
+          >
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="progressText">Загрузка...</p>
+          </div>
+          <div class="upload-result" id="uploadResult" style="display: none">
+            <h3>Результат загрузки:</h3>
+            <div id="resultContent"></div>
+          </div>
+        </div>
+        <div class="file-format-info">
+          <div class="format-header">
+            <h3>Импорт Excel файла:</h3>
+          </div>
+          <p>Файл имеет структуру:</p>
+          <ul>
+            <li><strong>product_name</strong> - Название товара</li>
+            <li><strong>category_name</strong> - Категория товара</li>
+            <li><strong>region_name</strong> - Регион продажи</li>
+            <li><strong>platform_name</strong> - Торговая площадка</li>
+            <li><strong>quantity</strong> - Количество</li>
+            <li><strong>unit_price</strong> - Цена за единицу</li>
+            <li><strong>sale_date</strong> - Дата продажи (необязательно)</li>
+          </ul>
+          <div class="action-buttons">
+            <button class="download-btn" id="downloadBtn">
+              Скачать данные
+            </button>
+            <button class="clear-btn" id="clearBtn">Очистить все данные</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Статус подключения -->
+      <div class="status-indicator" id="statusIndicator">
+        <span class="status-dot"></span>
+        <span class="status-text">Подключение к API...</span>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
